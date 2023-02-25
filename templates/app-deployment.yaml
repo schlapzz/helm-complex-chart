@@ -33,6 +33,25 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if .Values.database.enabled }}
+          env:
+          - name: MYSQL_DATABASE_USER
+            value: "acend"
+          - name: MYSQL_DATABASE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: mariadb-password
+                name: {{ .Release.Name }}-mariadb
+          - name: MYSQL_DATABASE_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: mariadb-root-password
+                name: {{ .Release.Name }}-mariadb
+          - name: MYSQL_DATABASE_NAME
+            value: acenddb
+          - name: MYSQL_URI
+            value: mysql://$(MYSQL_DATABASE_USER):$(MYSQL_DATABASE_PASSWORD)@{{ .Release.Name }}-mariadb/$(MYSQL_DATABASE_NAME)
+          {{- end }}
           ports:
             - name: http
               containerPort: 5000
