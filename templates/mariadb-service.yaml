@@ -4,11 +4,7 @@ kind: Service
 metadata:
   name: {{ .Release.Name }}-mariadb
   labels:
-    app.kubernetes.io/name: mariadb
-    app.kubernetes.io/instance: myapp
-    helm.sh/chart: helm-complex-chart-0.1.0
-    app.kubernetes.io/version: "1.16.0"
-    app.kubernetes.io/managed-by: Helm
+    {{- include "helm-complex-chart.labelsDatabase" . | nindent 4 }}
 spec:
   ports:
     - port: 3306
@@ -16,7 +12,6 @@ spec:
       protocol: TCP
       name: mariadb
   selector:
-    app.kubernetes.io/name: mariadb
-    app.kubernetes.io/instance: myapp
+    {{- include "helm-complex-chart.selectorLabelsDatabase" . | nindent 4 }}
   clusterIP: None
 {{- end }}

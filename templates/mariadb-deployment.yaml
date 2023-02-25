@@ -4,34 +4,28 @@ kind: Deployment
 metadata:
   name: {{ .Release.Name }}-mariadb
   labels:
-    app.kubernetes.io/name: mariadb
-    app.kubernetes.io/instance: myapp
-    helm.sh/chart: helm-complex-chart-0.1.0
-    app.kubernetes.io/version: "1.16.0"
-    app.kubernetes.io/managed-by: Helm
+    {{- include "helm-complex-chart.labelsDatabase" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: mariadb
-      app.kubernetes.io/instance: myapp
+      {{- include "helm-complex-chart.selectorLabelsDatabase" . | nindent 6 }}
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: mariadb
-        app.kubernetes.io/instance: myapp
+        {{- include "helm-complex-chart.labelsDatabase" . | nindent 8 }}
     spec:
       containers:
-      - image: "registry.puzzle.ch/docker.io/mariadb:10.5"
+      - image: "{{ .Values.database.image.repository }}:{{ .Values.database.image.tag}}"
         name: mariadb
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: {{ .Values.database.image.pullPolicy }}
         args:
           - "--ignore-db-dir=lost+found"
         env:
         - name: MYSQL_USER
-          value: "acend"
+          value: {{ .Values.database.databaseuser }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -43,7 +37,7 @@ spec:
               key: mariadb-root-password
               name: {{ .Release.Name }}-mariadb
         - name: MYSQL_DATABASE
-          value: "acenddb"
+          value: {{ .Values.database.databasename }}
         livenessProbe:
           tcpSocket:
             port: 3306
