@@ -15,7 +15,7 @@ spec:
   template:
     metadata:
       labels:
-        {{- include "helm-complex-chart.labelsDatabase" . | nindent 8 }}
+        {{- include "helm-complex-chart.selectorLabelsDatabase" . | nindent 8 }}
     spec:
       containers:
       - image: "{{ .Values.database.image.repository }}:{{ .Values.database.image.tag}}"
